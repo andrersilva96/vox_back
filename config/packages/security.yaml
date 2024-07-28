@@ -21,9 +21,13 @@ security:
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
 
-
         register:
             pattern: ^/api/register
+            stateless: true
+            security: false  # Permitir acesso anônimo à rota de registro
+
+        list:
+            pattern: ^/api/companies
             stateless: true
             security: false  # Permitir acesso anônimo à rota de registro
 
@@ -33,6 +37,7 @@ security:
             jwt: ~
 
     access_control:
+        - { path: ^/api/api/companies, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/register, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api, roles: IS_AUTHENTICATED_ANONYMOUSLY }
