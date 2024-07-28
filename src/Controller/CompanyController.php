@@ -21,10 +21,11 @@ class CompanyController extends AbstractController
     #[Route('', name: 'list', methods: ['GET'])]
     public function list(): Response
     {
-        $data = $this->entityManager->getRepository(Company::class)->findAll();
-        return !$data
+        $arr = ['success' => true, 'data' => []];
+        $arr['data'] = $this->entityManager->getRepository(Company::class)->findAll();
+        return !$arr['data']
             ? $this->json(['success' => false, 'message' => 'No content.'], Response::HTTP_NOT_FOUND)
-            : $this->json($data);
+            : $this->json($arr);
     }
 
     #[Route('', name: 'create', methods: ['POST'])]
@@ -66,11 +67,10 @@ class CompanyController extends AbstractController
     public function delete(int $id): Response
     {
         $company = $this->entityManager->getRepository(Company::class)->find($id);
+        if (!$company) return $this->json(['success' => false, 'message' => 'No content.'], Response::HTTP_NOT_FOUND);
 
-        if ($company) {
-            $this->entityManager->remove($company);
-            $this->entityManager->flush();
-        }
+        $this->entityManager->remove($company);
+        $this->entityManager->flush();
 
         return $this->json(['message' => 'Company deleted']);
     }
