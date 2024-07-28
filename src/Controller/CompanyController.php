@@ -5,9 +5,8 @@ namespace App\Controller;
 use App\Entity\Company;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\{Request, Response};
 
 #[Route('/api/companies', name: 'company_')]
 class CompanyController extends AbstractController
@@ -20,13 +19,16 @@ class CompanyController extends AbstractController
     }
 
     #[Route('', name: 'list', methods: ['GET'])]
-    public function list(): JsonResponse
+    public function list(): Response
     {
-        $this->json($this->entityManager->getRepository(Company::class)->findAll());
+        $data = $this->entityManager->getRepository(Company::class)->findAll();
+        return !$data
+            ? $this->json(['success' => false, 'message' => 'No content.'], Response::HTTP_NOT_FOUND)
+            : $this->json($data);
     }
 
     #[Route('', name: 'create', methods: ['POST'])]
-    public function create(Request $request): JsonResponse
+    public function create(Request $request): Response
     {
         $data = json_decode($request->getContent(), true);
         $company = new Company();
@@ -39,20 +41,20 @@ class CompanyController extends AbstractController
     }
 
     #[Route('/{id}', name: 'show', methods: ['GET'])]
-    public function show(int $id): JsonResponse
+    public function show(int $id): Response
     {
         $company = $this->entityManager->getRepository(Company::class)->find($id);
-        if (!$company) return $this->json(['message' => 'Company not found'], 404);
-
-        return $this->json($company);
+        return $company
+            ? $this->json($company)
+            : $this->json(['success' => false, 'message' => 'No content.'], Response::HTTP_NOT_FOUND);
     }
 
     #[Route('/{id}', name: 'update', methods: ['PUT'])]
-    public function update(Request $request, int $id): JsonResponse
+    public function update(Request $request, int $id): Response
     {
         $data = json_decode($request->getContent(), true);
         $company = $this->entityManager->getRepository(Company::class)->find($id);
-        if (!$company) return $this->json(['message' => 'Company not found'], 404);
+        if (!$company) return $this->json(['success' => false, 'message' => 'No content.'], Response::HTTP_NOT_FOUND);
 
         $company->setName($data['name']);
         $this->entityManager->flush();
@@ -61,7 +63,7 @@ class CompanyController extends AbstractController
     }
 
     #[Route('/{id}', name: 'delete', methods: ['DELETE'])]
-    public function delete(int $id): JsonResponse
+    public function delete(int $id): Response
     {
         $company = $this->entityManager->getRepository(Company::class)->find($id);
 
