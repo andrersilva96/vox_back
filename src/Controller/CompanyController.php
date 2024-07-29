@@ -46,7 +46,7 @@ class CompanyController extends AbstractController
     {
         $company = $this->entityManager->getRepository(Company::class)->find($id);
         return $company
-            ? $this->json($company)
+            ? $this->json(['success' => true, 'data' => $company])
             : $this->json(['success' => false, 'message' => 'No content.'], Response::HTTP_NOT_FOUND);
     }
 
@@ -60,7 +60,7 @@ class CompanyController extends AbstractController
         $company->setName($data['name']);
         $this->entityManager->flush();
 
-        return $this->json($company);
+        return $this->json(['success' => true, 'data' => $company]);
     }
 
     #[Route('/{id}', name: 'delete', methods: ['DELETE'])]
@@ -72,6 +72,6 @@ class CompanyController extends AbstractController
         $this->entityManager->remove($company);
         $this->entityManager->flush();
 
-        return $this->json(['message' => 'Company deleted']);
+        return $this->json(['true' => true, 'message' => 'The data has been deleted!']);
     }
 }
